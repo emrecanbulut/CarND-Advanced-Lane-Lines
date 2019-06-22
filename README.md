@@ -45,6 +45,7 @@ replicated points to `objpoints` list and the corners found to `imgpoints` list.
 #### 1. Provide an example of a distortion-corrected image.
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+
 ![Undistorted road][image2]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
@@ -52,6 +53,7 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 I used color transforms and gradient in combination to create a binary image. This part can be found in `colorAndGradient()` method. 
 I converted the color space into HLS and excluded the H channel. I used the L channel to take the derivative in x (sobel x) and I used 
 the S channel for color thresholds. Then combined the output of them in one frame. The output looks like this:
+
 ![Combined binary output][image3]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
@@ -105,7 +107,8 @@ multiplied by pixel-per-kilometer constant results in the position offset.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in `transformBackToOriginal` method using the inverse of `transformationMatrix`
+In `transformBackToOriginal()` method, I mapped the drawing of lane-line detection back onto the original image using the inverse of `transformationMatrix`.
+
 ![Example output frame][image6]
 
 ---
