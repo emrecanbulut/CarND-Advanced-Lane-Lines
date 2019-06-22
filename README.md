@@ -19,11 +19,7 @@ The goals / steps of this project are the following:
 [image4]: ./test_images_output/warped_straight_lines.png "Warp Example"
 [image5]: ./test_images_output/colored_lane_marked.png "Fit Visual"
 [image6]: ./test_images_output/example_output.png "Output"
-[video1]: ./output_videos/project_video.mp4 "Video"
-
-## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
-
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+[video1]: ./output_videos/project_video.mp4 "Video" 
 
 ---
 
@@ -42,23 +38,21 @@ before using the OpenCV method `findChessboardCorners(gray, (9,6),None)`. After 
 replicated points to `objpoints` list and the corners found to `imgpoints` list. Afterwards, I used 
 `calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)` of OpenCV.
 
-
 ![Undistorted comparison][image1]
 
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
 
-----FILL
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
+![Undistorted road][image2]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
 I used color transforms and gradient in combination to create a binary image. This part can be found in `colorAndGradient()` method. 
 I converted the color space into HLS and excluded the H channel. I used the L channel to take the derivative in x (sobel x) and I used 
 the S channel for color thresholds. Then combined the output of them in one frame. The output looks like this:
-![alt text][image3]
+![Combined binary output][image3]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
@@ -92,7 +86,7 @@ This resulted in the following source and destination points:
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
-![alt text][image4]
+![Warped image][image4]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -101,7 +95,7 @@ image, I vertically checked where most of the nonzero values lied, and added the
 
 The part where I fit a 2nd order polynomial to the lane-line pixels can be found in `fit_poly()` method.
 
-![alt text][image5]
+![Poly fitted][image5]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -112,7 +106,7 @@ multiplied by pixel-per-kilometer constant results in the position offset.
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
 I implemented this step in `transformBackToOriginal` method using the inverse of `transformationMatrix`
-![alt text][image6]
+![Example output frame][image6]
 
 ---
 
