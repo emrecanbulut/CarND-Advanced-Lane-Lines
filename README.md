@@ -123,5 +123,16 @@ Here's a [link to my video result](./output_videos/project_video.mp4)
 ### Discussion
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
-I haven't worked on the sanity of the lane lines that were detected. Therefore, once it detects some other line as the lane line, it will keep searching the lane line around the wrong line and 
+* I haven't worked on the sanity of the lane lines that were detected. Therefore, once it detects some other line as the lane line, it will keep searching the lane line around the wrong line and 
 will almost always fail to find the correct one.
+
+* I think the algorithm would fail when a big vehicle like a semi truck change into my lane as well. Because at one point the algorithm will detect the straight edge of the truck as the lane, 
+and won't be able to recover from there.
+
+* For videos recorded at night I think the algorithm would not work when cars are coming from opposite direction with strong headlights. Significant increase
+or decrease at brightness is still an issue.
+
+* When there are sharper turns, the algorithm would definitely fail since it expects to find the lane line vertically in the image.
+
+* I haven't faced any technical problems with this project. However, researching things on image processing was such a hassle for me, specifically unwarping, since I do not 
+know the keywords/terms on this subject.

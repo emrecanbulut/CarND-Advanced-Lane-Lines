@@ -76,7 +76,8 @@ def showBeforeAndAfter(before_img, after_img):
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     mng = plt.get_current_fig_manager()
     mng.window.state('zoomed')
-    plt.savefig('test_images_output\warped_straight_lines')
+    plt.show()
+    #plt.savefig('test_images_output\warped_straight_lines')
 
 def drawPolygon(img):
     output = np.copy(img)
@@ -223,7 +224,7 @@ def search_around_poly(binary_warped):
     # update previous fits for the next iteration
     left_fitx, right_fitx, ploty, prev_left_fit, prev_right_fit = fit_poly(binary_warped.shape, leftx, lefty, rightx, righty)
     y_eval = np.max(ploty)
-    left_curverad, right_curverad = calculateCurvature(prev_left_fit, prev_right_fit, y_eval)
+    left_curverad, right_curverad = calculateCurvature(prev_left_fit.copy(), prev_right_fit.copy(), y_eval)
 
     ## Visualization ##
     # Create an image to draw on and an image to show the selection window
@@ -252,10 +253,19 @@ def search_around_poly(binary_warped):
     ## End visualization steps ##   
     return result, window_img
 
+def cvtParabola(left_fit_cr, right_fit_cr):
+    ym_per_pix = 30/720 # meters per pixel in y dimension
+    xm_per_pix = 3.7/500 # meters per pixel in x dimension
+    left_fit_cr[0] *= xm_per_pix / (ym_per_pix ** 2)
+    left_fit_cr[1] *= xm_per_pix / ym_per_pix
+    right_fit_cr[0] *= xm_per_pix / (ym_per_pix ** 2)
+    right_fit_cr[1] *= xm_per_pix / ym_per_pix
+    return left_fit_cr, right_fit_cr
+
 def calculateCurvature(left_fit_cr, right_fit_cr, y_eval):
-    ym_per_pix = 500/720 # meters per pixel in y dimension
-    left_curverad = ((1 + (2*left_fit_cr[0]*y_eval*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
-    right_curverad = ((1 + (2*right_fit_cr[0]*y_eval*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
+    left_fit_cr, right_fit_cr = cvtParabola(left_fit_cr, right_fit_cr)
+    left_curverad = ((1 + (2*left_fit_cr[0]*y_eval + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
+    right_curverad = ((1 + (2*right_fit_cr[0]*y_eval + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
     return int(left_curverad), int(right_curverad)
     
 def work_on_video(filename='project_video.mp4'):
@@ -265,14 +275,14 @@ def work_on_video(filename='project_video.mp4'):
     ## Where start_second and end_second are integer values representing the start and end of the subclip
     ## You may also uncomment the following line for a subclip of the first 5 seconds
     ##clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4").subclip(0,5)
-    clip1 = VideoFileClip(filename)#.subclip(0,5) #solidWhiteRight.mp4")
+    clip1 = VideoFileClip(filename)#.subclip(0,10) #solidWhiteRight.mp4")
     white_clip = clip1.fl_image(video_processor) #NOTE: this function expects color images!!
     white_clip.write_videofile(white_output, audio=False)
 
 def video_processor(image):
-    processed_img = process_image(image)
+    processed_img, undist = process_image(image)
     unwarped = transformBackToOriginal(processed_img)
-    result = cv2.addWeighted(image, 1, unwarped, 0.8, 0)
+    result = cv2.addWeighted(undist, 1, unwarped, 0.8, 0)
     cv2.putText(
         img=result,
         text='Curvature radius: '+str((right_curverad+left_curverad)/2),
@@ -310,10 +320,10 @@ def work_on_images():
     for file in images:
         isFirstFrame = True
         image = readAndCvt(file)
-        processed_img = process_image(image)
+        processed_img, undist = process_image(image)
         unwarped = transformBackToOriginal(processed_img)
-        result = cv2.addWeighted(image, 1, unwarped, 0.8, 0)
-        showBeforeAndAfter(result, result)
+        result = cv2.addWeighted(undist, 1, unwarped, 0.8, 0)
+        #showBeforeAndAfter(processed_img, result)
 
 def process_image(image):
     # NOTE: The output you return should be a color image (3 channel) for processing video below
@@ -332,7 +342,7 @@ def process_image(image):
         _, _, _, prev_left_fit, prev_right_fit = fit_poly(binary_warped.shape, leftx, lefty, rightx, righty)
         isFirstFrame = False
     out_img, _= search_around_poly(binary_warped)
-    return out_img
+    return out_img, undist
 
 def saveImage(img, title, filename):
     cv2.imwrite('test_images_output/'+filename+'.png',img)
@@ -343,6 +353,7 @@ def saveImage(img, title, filename):
         os.makedirs('test_images_output')
     plt.savefig('test_images_output/'+filename)
     '''
+
 def transformBackToOriginal(processed_img):
     global transMatrix
     invTransMatrix = np.linalg.inv(transMatrix)
